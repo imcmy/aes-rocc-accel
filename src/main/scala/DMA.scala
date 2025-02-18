@@ -146,10 +146,12 @@ class DMA(beatBytes: Int, maxReadBytes: Int, name: String)(implicit p: Parameter
 }
 
 class DMAWriter(beatBytes: Int, name: String)(implicit p: Parameters) extends LazyModule {
-  val node = TLClientNode(Seq(
-    TLMasterPortParameters.v1(Seq(TLClientParameters((name = name, sourceId = IdRange(0, 1)))))))
+  val node = TLClientNode(
+    Seq(
+      TLMasterPortParameters.v1(Seq(TLClientParameters(name = name, sourceId = IdRange(0, 1))))))
 
-  lazy val module = new LazyModuleImp(this) with MemoryOpConstants {
+  lazy val module = new Impl
+  class Impl extends LazyModuleImp(this) with MemoryOpConstants {
     val (mem, edge) = node.out(0)
 
     val paddrBits = edge.bundle.addressBits
@@ -223,7 +225,8 @@ class DMAReader(beatBytes: Int, maxReadBytes: Int, name: String)(implicit p: Par
     Seq(
       TLMasterPortParameters.v1(Seq(TLClientParameters(name = name, sourceId = IdRange(1, 2))))))
 
-  lazy val module = new LazyModuleImp(this) with MemoryOpConstants {
+  lazy val module = new Impl
+  class Impl extends LazyModuleImp(this) with MemoryOpConstants {
     val (mem, edge) = node.out(0)
 
     val paddrBits = edge.bundle.addressBits
