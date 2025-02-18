@@ -121,7 +121,8 @@ class DMA(beatBytes: Int, maxReadBytes: Int, name: String)(implicit p: Parameter
   xbar_node := reader.node
   id_node := xbar_node
 
-  lazy val module = new LazyModuleImp(this) {
+  lazy val module = new Impl
+  class Impl extends LazyModuleImp(this) {
     val io = IO(new Bundle {
       val read = new DMAReadIO(paddrBits, beatBytes, maxReadBytes)
       val write = new DMAWriteIO(paddrBits, beatBytes)
