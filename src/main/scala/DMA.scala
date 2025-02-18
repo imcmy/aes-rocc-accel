@@ -44,12 +44,12 @@ class DMAPacketAssembler(beatBytes: Int) extends Module {
   val counter = RegInit(0.U(log2Ceil(beatBytes + 1).W))
   val packedData = RegInit(0.U((8 * beatBytes).W))
 
-  when(io.producer.data.fire()) {
+  when(io.producer.data.fire) {
     packedData := packedData | (io.producer.data.bits << (counter << 3).asUInt()).asUInt()
     counter := counter + 1.U
   }
 
-  when(io.dmaOut.fire()) {
+  when(io.dmaOut.fire) {
     packedData := 0.U
     counter := 0.U
   }
@@ -76,12 +76,12 @@ class DMAPacketDisassembler(beatBytes: Int) extends Module {
   val counter = RegInit(0.U(log2Ceil(beatBytes + 1).W))
   val wideData = RegInit(0.U((8 * beatBytes).W))
 
-  when(io.dmaIn.fire()) {
+  when(io.dmaIn.fire) {
     wideData := io.dmaIn.bits
     counter := beatBytes.U
   }
 
-  when(io.consumer.data.fire()) {
+  when(io.consumer.data.fire) {
     wideData := wideData >> 8
     counter := counter - 1.U
   }
@@ -202,14 +202,14 @@ class DMAWriter(beatBytes: Int, name: String)(implicit p: Parameters) extends La
       state := s_resp
     }
 
-    when(mem.d.fire()) {
+    when(mem.d.fire) {
       state := Mux(bytesLeft === 0.U, s_done, s_write)
     }
 
     io.req.ready := state === s_idle | state === s_done
     io.busy := ~io.req.ready
 
-    when(io.req.fire()) {
+    when(io.req.fire) {
       req := io.req.bits
       bytesSent := 0.U
       state := s_write
@@ -264,12 +264,12 @@ class DMAReader(beatBytes: Int, maxReadBytes: Int, name: String)(implicit p: Par
     // TODO Both writer and reader needs to have mem.d.ready high for the xbar.d.ready to be high for some reason...
     // mem.d.ready := true.B
 
-    when(mem.d.fire()) {
+    when(mem.d.fire) {
       dataBytes := mem.d.bits.data // TODO: mask off the unwanted bytes if bytesLeft < beatBytes.U using a mask vector and register
       state := s_queue
     }
 
-    when(io.queue.fire() && state === s_queue) {
+    when(io.queue.fire && state === s_queue) {
       state := Mux(bytesLeft === 0.U, s_done, s_read)
     }
 
@@ -280,7 +280,7 @@ class DMAReader(beatBytes: Int, maxReadBytes: Int, name: String)(implicit p: Par
     io.queue.bits := dataBytes
     io.busy := ~io.req.ready
 
-    when(io.req.fire()) {
+    when(io.req.fire) {
       req := io.req.bits
       bytesRead := 0.U
       state := s_read
