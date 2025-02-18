@@ -146,7 +146,8 @@ class DMA(beatBytes: Int, maxReadBytes: Int, name: String)(implicit p: Parameter
 }
 
 class DMAWriter(beatBytes: Int, name: String)(implicit p: Parameters) extends LazyModule {
-  val node = TLHelper.makeClientNode(name = name, sourceId = IdRange(0, 1))
+  val node = TLClientNode(Seq(
+    TLMasterPortParameters.v1(Seq(TLClientParameters((name = name, sourceId = IdRange(0, 1)))))))
 
   lazy val module = new LazyModuleImp(this) with MemoryOpConstants {
     val (mem, edge) = node.out(0)
@@ -218,7 +219,9 @@ class DMAWriter(beatBytes: Int, name: String)(implicit p: Parameters) extends La
 
 class DMAReader(beatBytes: Int, maxReadBytes: Int, name: String)(implicit p: Parameters)
     extends LazyModule {
-  val node = TLHelper.makeClientNode(name = name, sourceId = IdRange(1, 2))
+  val node = TLClientNode(
+    Seq(
+      TLMasterPortParameters.v1(Seq(TLClientParameters(name = name, sourceId = IdRange(1, 2))))))
 
   lazy val module = new LazyModuleImp(this) with MemoryOpConstants {
     val (mem, edge) = node.out(0)

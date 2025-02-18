@@ -30,7 +30,7 @@ class AESAccelImp(outer: AESAccel)(implicit p: Parameters)
 
   // RoCC Decoupler
   val dcplr = Module(new RoCCDecoupler)
-  dcplr.io.reset := reset.asBool()
+  dcplr.io.reset := reset.asBool
   dcplr.io.rocc_cmd <> io.cmd
   io.resp <> dcplr.io.rocc_resp
   io.busy := dcplr.io.rocc_busy
@@ -39,7 +39,7 @@ class AESAccelImp(outer: AESAccel)(implicit p: Parameters)
 
   // Controller
   val ctrl = Module(new AESController(32, beatBytes))
-  ctrl.io.reset := reset.asBool()
+  ctrl.io.reset := reset.asBool
   ctrl.io.dcplrIO <> dcplr.io.ctrlIO
 
   // DMA Connections
