@@ -280,7 +280,7 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
       io.dmem.readReq.valid := true.B
       io.dmem.readReq.bits.addr := addrWire
       io.dmem.readReq.bits.totalBytes := size_reg
-      when(io.dmem.readReq.fire()) {
+      when(io.dmem.readReq.fire) {
         mStateWire := MemState.sReadIntoAES
       }
     }
@@ -290,7 +290,7 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
         // Completed Memory Read
         mStateWire := MemState.sIdle
       }.otherwise {
-        when(dequeue.io.dataOut.fire()) { // When we dequeue
+        when(dequeue.io.dataOut.fire) { // When we dequeue
           io.aesCoreIO.cs := true.B
           io.aesCoreIO.we := true.B
           io.aesCoreIO.write_data := dequeue.io.dataOut.bits

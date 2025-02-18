@@ -34,15 +34,15 @@ class DMAInputBuffer (addrBits: Int = 32, beatBytes: Int) extends Module {
   }
 
   // NOTE: Base addr will only be set once per block in memory controller FSM
-  when (io.baseAddr.fire()) {
+  when (io.baseAddr.fire) {
     addrReg := io.baseAddr.bits
   }
   // NOTE: The two statements below will NEVER concurrently fire (fire conditions prevent)
-  when (dataQueue.io.deq.fire()) {
-    wideData := wideData | (reverse << bitsFilled).asUInt()
+  when (dataQueue.io.deq.fire) {
+    wideData := wideData | (reverse << bitsFilled).asUInt
     bitsFilled := bitsFilled + 32.U
   }
-  when (io.dmaOutput.fire()) {
+  when (io.dmaOutput.fire) {
     addrReg := addrReg + io.dmaOutput.bits.totalBytes
     wideData := wideData >> (io.dmaOutput.bits.totalBytes * 8.U)
     bitsFilled := bitsFilled - (io.dmaOutput.bits.totalBytes * 8.U)
@@ -65,7 +65,7 @@ class DMAInputBuffer (addrBits: Int = 32, beatBytes: Int) extends Module {
 
   // Reversing bytes
   toReverse := dataQueue.io.deq.bits
-  reverse   := (toReverse(7,0) << 24).asUInt() | (toReverse(15,8) << 16).asUInt() | (toReverse(23,16) << 8).asUInt() | toReverse(31,24).asUInt()
+  reverse   := (toReverse(7,0) << 24).asUInt | (toReverse(15,8) << 16).asUInt | (toReverse(23,16) << 8).asUInt | toReverse(31,24).asUInt
 }
 
 // Outputs data from DMA in 32bit chunks (for AES core)
@@ -83,13 +83,13 @@ class DMAOutputBuffer (beatBytes: Int) extends Module {
   val reverse = Wire(UInt(32.W)) // Used to carry data with bytes reversed
 
   // NOTE: These two statements will NEVER concurrently fire (fire conditions prevent)
-  when (dataQueue.io.enq.fire()) {
+  when (dataQueue.io.enq.fire) {
     bitsFilled := bitsFilled - 32.U
     wideData := wideData >> 32
   }
-  when (io.dmaInput.fire()) {
+  when (io.dmaInput.fire) {
     bitsFilled := bitsFilled + (beatBytes * 8).U
-    wideData := wideData | (io.dmaInput.bits << bitsFilled).asUInt()
+    wideData := wideData | (io.dmaInput.bits << bitsFilled).asUInt
   }
 
   io.dmaInput.ready := bitsFilled < 32.U
@@ -99,5 +99,5 @@ class DMAOutputBuffer (beatBytes: Int) extends Module {
   dataQueue.io.enq.bits := reverse
 
   // Reversing bytes
-  reverse := (wideData(7,0) << 24).asUInt() | (wideData(15,8) << 16).asUInt() | (wideData(23,16) << 8).asUInt() | wideData(31,24).asUInt()
+  reverse := (wideData(7,0) << 24).asUInt | (wideData(15,8) << 16).asUInt | (wideData(23,16) << 8).asUInt | wideData(31,24).asUInt
 }

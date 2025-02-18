@@ -45,7 +45,7 @@ class DMAPacketAssembler(beatBytes: Int) extends Module {
   val packedData = RegInit(0.U((8 * beatBytes).W))
 
   when(io.producer.data.fire) {
-    packedData := packedData | (io.producer.data.bits << (counter << 3).asUInt()).asUInt()
+    packedData := packedData | (io.producer.data.bits << (counter << 3).asUInt).asUInt
     counter := counter + 1.U
   }
 
@@ -188,8 +188,8 @@ class DMAWriter(beatBytes: Int, name: String)(implicit p: Parameters) extends La
         fromSource = 0.U,
         toAddress = req.addr,
         lgSize = log2Ceil(beatBytes).U,
-        data = (req.data << shiftData).asUInt(),
-        mask = (mask(bytesLeft) << shiftMask).asUInt())
+        data = (req.data << shiftData).asUInt,
+        mask = (mask(bytesLeft) << shiftMask).asUInt)
       ._2
 
     mem.a.valid := state === s_write
