@@ -5,7 +5,6 @@ import chisel3.util.DecoupledIO
 import chiseltest._
 import chiseltest.experimental.TestOptionBuilder._
 import chiseltest.internal.WriteVcdAnnotation
-import ee290cdma.EE290CDMAWriterReq
 import org.scalatest.flatspec.AnyFlatSpec
 import verif._
 
@@ -24,8 +23,8 @@ class DMABufferTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new DMAInputBuffer(32, beatBytes)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       val addrDriver = new DecoupledDriverMaster(c.clock, c.io.baseAddr)
       val inDriver = new DecoupledDriverMaster(c.clock, c.io.dataIn)
-      val outDriver = new DecoupledDriverSlave[EE290CDMAWriterReq](c.clock, c.io.dmaOutput, 0)
-      val outMonitor = new DecoupledMonitor[EE290CDMAWriterReq](c.clock, c.io.dmaOutput)
+      val outDriver = new DecoupledDriverSlave[DMAWriterReq](c.clock, c.io.dmaOutput, 0)
+      val outMonitor = new DecoupledMonitor[DMAWriterReq](c.clock, c.io.dmaOutput)
 
       val addrInputs = Seq.fill(25)(BigInt(32, scala.util.Random))
       val resultDataBlocks = Seq.fill(25)(BigInt(128, scala.util.Random))
@@ -60,8 +59,8 @@ class DMABufferTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new DMAInputBuffer(32, beatBytes)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       val addrDriver = new DecoupledDriverMaster(c.clock, c.io.baseAddr)
       val inDriver = new DecoupledDriverMaster(c.clock, c.io.dataIn)
-      val outDriver = new DecoupledDriverSlave[EE290CDMAWriterReq](c.clock, c.io.dmaOutput, 0)
-      val outMonitor = new DecoupledMonitor[EE290CDMAWriterReq](c.clock, c.io.dmaOutput)
+      val outDriver = new DecoupledDriverSlave[DMAWriterReq](c.clock, c.io.dmaOutput, 0)
+      val outMonitor = new DecoupledMonitor[DMAWriterReq](c.clock, c.io.dmaOutput)
 
       val addrInputs = Seq.fill(25)(BigInt(32, scala.util.Random))
       val dataBlocks = Seq.fill(25)(BigInt(128, scala.util.Random))
@@ -111,8 +110,8 @@ class DMABufferTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new DMAInputBuffer(32, beatBytes)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       val addrDriver = new DecoupledDriverMaster(c.clock, c.io.baseAddr)
       val inDriver = new DecoupledDriverMaster(c.clock, c.io.dataIn)
-      val outDriver = new DecoupledDriverSlave[EE290CDMAWriterReq](c.clock, c.io.dmaOutput, 0)
-      val outMonitor = new DecoupledMonitor[EE290CDMAWriterReq](c.clock, c.io.dmaOutput)
+      val outDriver = new DecoupledDriverSlave[DMAWriterReq](c.clock, c.io.dmaOutput, 0)
+      val outMonitor = new DecoupledMonitor[DMAWriterReq](c.clock, c.io.dmaOutput)
 
       val addrInputs = Seq.fill(25)(BigInt(32, scala.util.Random))
       val dataBlocks = Seq.fill(25)(BigInt(128, scala.util.Random))
@@ -161,8 +160,8 @@ class DMABufferTest extends AnyFlatSpec with ChiselScalatestTester {
     test(new DMAInputBuffer(32, beatBytes)).withAnnotations(Seq(WriteVcdAnnotation)) { c =>
       val addrDriver = new DecoupledDriverMaster(c.clock, c.io.baseAddr)
       val inDriver = new DecoupledDriverMaster(c.clock, c.io.dataIn)
-      val outDriver = new DecoupledDriverSlave[EE290CDMAWriterReq](c.clock, c.io.dmaOutput, 0)
-      val outMonitor = new DecoupledMonitor[EE290CDMAWriterReq](c.clock, c.io.dmaOutput)
+      val outDriver = new DecoupledDriverSlave[DMAWriterReq](c.clock, c.io.dmaOutput, 0)
+      val outMonitor = new DecoupledMonitor[DMAWriterReq](c.clock, c.io.dmaOutput)
 
       val addrInputs = Seq.fill(25)(BigInt(32, scala.util.Random))
       val resultDataBlocks = Seq.fill(25)(BigInt(128, scala.util.Random))

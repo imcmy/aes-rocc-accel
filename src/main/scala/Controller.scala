@@ -2,42 +2,40 @@ package aes
 
 import chisel3._
 import chisel3.util._
-import chipsalliance.rocketchip.config.Parameters
+
+import org.chipsalliance.cde.config._
 
 class AESControllerIO(addrBits: Int, beatBytes: Int)(implicit p: Parameters) extends Bundle {
   // System
-  val reset       = Input(Bool())
+  val reset = Input(Bool())
 
   // RoCC Decoupler
-  val dcplrIO     = new DecouplerControllerIO
-  val dmem        = new ControllerDMAIO(addrBits, beatBytes)
+  val dcplrIO = new DecouplerControllerIO
+  val dmem = new ControllerDMAIO(addrBits, beatBytes)
 
   // AES Core
-  val aesCoreIO   = Flipped(new AESCoreIO)
-
-  // Testing Signals have been removed
-  // See commit 82a030730220a45974db77fce7da674ba0338676 for last commit before change
+  val aesCoreIO = Flipped(new AESCoreIO)
 }
 
-class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) extends Module { val io = IO(new AESControllerIO(addrBits, beatBytes))
+class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) extends Module {
+  val io = IO(new AESControllerIO(addrBits, beatBytes))
 
   // Internal Registers
-  val size_reg        = RegInit(0.U(32.W))
-  val key_addr_reg    = RegInit(0.U(32.W))
-  val key_size_reg    = RegInit(0.U(1.W))
-  val src_addr_reg    = RegInit(0.U(32.W))
-  val dest_addr_reg   = RegInit(0.U(32.W))
-  val counter_reg     = RegInit(0.U(4.W))
-  val mem_target_reg  = RegInit(0.U(4.W))
+  val size_reg = RegInit(0.U(32.W))
+  val key_addr_reg = RegInit(0.U(32.W))
+  val key_size_reg = RegInit(0.U(1.W))
+  val src_addr_reg = RegInit(0.U(32.W))
+  val dest_addr_reg = RegInit(0.U(32.W))
+  val counter_reg = RegInit(0.U(4.W))
+  val mem_target_reg = RegInit(0.U(4.W))
   val blks_remain_reg = RegInit(0.U(32.W))
-  val intrpt_en_reg   = RegInit(false.B)
+  val intrpt_en_reg = RegInit(false.B)
   val ready_check_reg = RegInit(false.B)
 
-
   // States (C - Controller, M - Memory)
-  val cState     = RegInit(CtrlState.sIdle)
+  val cState = RegInit(CtrlState.sIdle)
   val cStateWire = WireDefault(cState)
-  val mState     = RegInit(MemState.sIdle)
+  val mState = RegInit(MemState.sIdle)
   val mStateWire = WireDefault(mState)
 
   // Helper Wires
@@ -47,24 +45,23 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
   val enqueue_data = Reg(UInt(32.W))
 
   // Default DecouplerIO Signals
-  io.dcplrIO.key_ready   := false.B
-  io.dcplrIO.addr_ready  := false.B
+  io.dcplrIO.key_ready := false.B
+  io.dcplrIO.addr_ready := false.B
   io.dcplrIO.start_ready := false.B
-  io.dcplrIO.excp_ready  := true.B
-  io.dcplrIO.interrupt   := false.B
+  io.dcplrIO.excp_ready := true.B
+  io.dcplrIO.interrupt := false.B
 
   // Default DMA readReq Values
-  io.dmem.readReq.valid           := false.B
-  io.dmem.readReq.bits.addr       := 0.U
+  io.dmem.readReq.valid := false.B
+  io.dmem.readReq.bits.addr := 0.U
   io.dmem.readReq.bits.totalBytes := 0.U
-  io.dmem.readResp.ready          := false.B
+  io.dmem.readResp.ready := false.B
 
   // Default AESCoreIO Signals
-  io.aesCoreIO.we         := false.B
-  io.aesCoreIO.cs         := false.B
+  io.aesCoreIO.we := false.B
+  io.aesCoreIO.cs := false.B
   io.aesCoreIO.write_data := 0.U
-  io.aesCoreIO.address    := 0.U
-
+  io.aesCoreIO.address := 0.U
 
   // Default Queue Signals
   val dequeue = Module(new DMAOutputBuffer(beatBytes))
@@ -79,34 +76,33 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
   enqueue.io.dataIn.bits := enqueue_data
   io.dmem.writeReq <> enqueue.io.dmaOutput
 
-
-  when (cState === CtrlState.sKeySetup) {
+  when(cState === CtrlState.sKeySetup) {
     addrWire := key_addr_reg
-  } .elsewhen (cState === CtrlState.sDataSetup) {
+  }.elsewhen(cState === CtrlState.sDataSetup) {
     addrWire := src_addr_reg
-  } .elsewhen (cState === CtrlState.sDataWrite) {
+  }.elsewhen(cState === CtrlState.sDataWrite) {
     addrWire := dest_addr_reg
-  } .otherwise {
+  }.otherwise {
     addrWire := 0.U
   }
 
   // Separate state FSM w/ reset
-  when (io.reset | io.dcplrIO.excp_valid) {
+  when(io.reset | io.dcplrIO.excp_valid) {
     cState := CtrlState.sIdle
     blks_remain_reg := 0.U
     intrpt_en_reg := false.B
     counter_reg := 0.U
-  } .otherwise {
+  }.otherwise {
     cState := cStateWire
   }
 
-  switch (cState) {
-    is (CtrlState.sIdle) {
+  switch(cState) {
+    is(CtrlState.sIdle) {
       io.dcplrIO.key_ready := true.B
       // wait for directly start signal
       io.dcplrIO.start_ready := true.B
 
-      when (io.dcplrIO.key_valid) {
+      when(io.dcplrIO.key_valid) {
         // configure AES key length
         io.aesCoreIO.we := true.B
         io.aesCoreIO.cs := true.B
@@ -116,21 +112,21 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
 
         // set memory addr and start memory read
         key_addr_reg := io.dcplrIO.key_addr
-        when (io.dcplrIO.key_size === 0.U) {
-          mem_target_reg   := 4.U
+        when(io.dcplrIO.key_size === 0.U) {
+          mem_target_reg := 4.U
           size_reg := 16.U
-        } .otherwise {
-          mem_target_reg   := 8.U
+        }.otherwise {
+          mem_target_reg := 8.U
           size_reg := 32.U
         }
 
         mStateWire := MemState.sReadReq
         cStateWire := CtrlState.sKeySetup
-      } .elsewhen (io.dcplrIO.addr_valid) {
+      }.elsewhen(io.dcplrIO.addr_valid) {
         // Wait for SRC and DEST address to arrive
         cStateWire := CtrlState.sWaitData
         io.dcplrIO.addr_ready := true.B
-        when (io.dcplrIO.addr_valid) {
+        when(io.dcplrIO.addr_valid) {
           // Save SRC and DEST address
           src_addr_reg := io.dcplrIO.src_addr
           dest_addr_reg := io.dcplrIO.dest_addr
@@ -141,10 +137,10 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
         }
       }
     }
-    is (CtrlState.sKeySetup) {
+    is(CtrlState.sKeySetup) {
       // wait data loading from memory
       cStateWire := CtrlState.sKeySetup
-      when (data_ld_done) {
+      when(data_ld_done) {
         // Start the Key Expansion Process
         io.aesCoreIO.cs := true.B
         io.aesCoreIO.we := true.B
@@ -154,25 +150,25 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
         cStateWire := CtrlState.sKeyExp
       }
     }
-    is (CtrlState.sKeyExp) {
+    is(CtrlState.sKeyExp) {
       // Waiting for Key Expansion to Complete
       io.aesCoreIO.cs := 1.U
       io.aesCoreIO.address := AESAddr.STATUS
       cStateWire := CtrlState.sKeyExp
       when(io.aesCoreIO.read_data(0) === ready_check_reg) {
-        when (ready_check_reg === false.B) {
+        when(ready_check_reg === false.B) {
           ready_check_reg := true.B
-        } .otherwise {
+        }.otherwise {
           ready_check_reg := false.B
           cStateWire := CtrlState.sWaitData
         }
       }
     }
-    is (CtrlState.sWaitData) {
+    is(CtrlState.sWaitData) {
       // Wait for SRC and DEST address to arrive
       cStateWire := CtrlState.sWaitData
       io.dcplrIO.addr_ready := true.B
-      when (io.dcplrIO.addr_valid) {
+      when(io.dcplrIO.addr_valid) {
         // Save SRC and DEST address
         src_addr_reg := io.dcplrIO.src_addr
         dest_addr_reg := io.dcplrIO.dest_addr
@@ -182,27 +178,27 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
         mem_target_reg := 4.U
       }
     }
-    is (CtrlState.sDataSetup) {
-      when (blks_remain_reg === 0.U) { // First block
-        when (data_ld_done) {
+    is(CtrlState.sDataSetup) {
+      when(blks_remain_reg === 0.U) { // First block
+        when(data_ld_done) {
           // When memory has finished loading, wait for green light
           cStateWire := CtrlState.sWaitStart
-        } .otherwise {
+        }.otherwise {
           cStateWire := CtrlState.sDataSetup
         }
-      } .otherwise {
-        when (data_ld_done) {
+      }.otherwise {
+        when(data_ld_done) {
           // When memory has finish loading, straight to processing
           cStateWire := CtrlState.sAESRun
-        } .otherwise {
+        }.otherwise {
           cStateWire := CtrlState.sDataSetup
         }
       }
     }
-    is (CtrlState.sWaitStart) {
+    is(CtrlState.sWaitStart) {
       cStateWire := CtrlState.sWaitStart
       io.dcplrIO.start_ready := true.B
-      when (io.dcplrIO.start_valid) {
+      when(io.dcplrIO.start_valid) {
         // Set ENC or DEC operation
         io.aesCoreIO.cs := true.B
         io.aesCoreIO.we := true.B
@@ -215,7 +211,7 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
         cStateWire := CtrlState.sAESRun
       }
     }
-    is (CtrlState.sAESRun) {
+    is(CtrlState.sAESRun) {
       // Start the ENC/DEC process
       io.aesCoreIO.cs := true.B
       io.aesCoreIO.we := true.B
@@ -224,14 +220,14 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
       ready_check_reg := false.B
       cStateWire := CtrlState.sWaitResult
     }
-    is (CtrlState.sWaitResult) {
+    is(CtrlState.sWaitResult) {
       cStateWire := CtrlState.sWaitResult
       io.aesCoreIO.cs := 1.U
       io.aesCoreIO.address := AESAddr.STATUS
       when(io.aesCoreIO.read_data(0) === ready_check_reg) {
-        when (ready_check_reg === false.B) {
+        when(ready_check_reg === false.B) {
           ready_check_reg := true.B
-        } .otherwise {
+        }.otherwise {
           blks_remain_reg := blks_remain_reg - 1.U
 
           ready_check_reg := false.B
@@ -240,93 +236,93 @@ class AESController(addrBits: Int, beatBytes: Int)(implicit p: Parameters) exten
         }
       }
     }
-    is (CtrlState.sDataWrite) {
-      when (mState === MemState.sWriteIntoMem) {
+    is(CtrlState.sDataWrite) {
+      when(mState === MemState.sWriteIntoMem) {
         // Read AES result out to DMA
         io.aesCoreIO.cs := 1.U
         io.aesCoreIO.address := AESAddr.RESULT + counter_reg
         cStateWire := CtrlState.sDataWrite
-      } .elsewhen (data_wr_done) {
-        when (blks_remain_reg > 0.U) {
+      }.elsewhen(data_wr_done) {
+        when(blks_remain_reg > 0.U) {
           // Return to DataSetup state to read in next block
           src_addr_reg := src_addr_reg + 16.U
           dest_addr_reg := dest_addr_reg + 16.U
 
           mStateWire := MemState.sReadReq
           cStateWire := CtrlState.sDataSetup
-        } .otherwise {
+        }.otherwise {
           // Completed Encryption/Decryption, Raise Interrupt
           // NOTE: Moved to when memory FSM finishes writeback
           // io.dcplrIO.interrupt := intrpt_en_reg
           cStateWire := CtrlState.sIdle
         }
-      } .otherwise {
+      }.otherwise {
         cStateWire := CtrlState.sDataWrite
       }
     }
   }
 
   // Separate state FSM w/ reset
-  when (io.reset | io.dcplrIO.excp_valid) {
+  when(io.reset | io.dcplrIO.excp_valid) {
     mState := MemState.sIdle
-  } .otherwise {
+  }.otherwise {
     mState := mStateWire
   }
 
   // Memory FSM
-  switch (mState) {
-    is (MemState.sIdle) {
+  switch(mState) {
+    is(MemState.sIdle) {
       counter_reg := 0.U
     }
-    is (MemState.sReadReq) {
+    is(MemState.sReadReq) {
       // Send Memory Read Request for Key
       mStateWire := MemState.sReadReq
       io.dmem.readReq.valid := true.B
       io.dmem.readReq.bits.addr := addrWire
       io.dmem.readReq.bits.totalBytes := size_reg
-      when (io.dmem.readReq.fire()) {
+      when(io.dmem.readReq.fire()) {
         mStateWire := MemState.sReadIntoAES
       }
     }
-    is (MemState.sReadIntoAES) {
+    is(MemState.sReadIntoAES) {
       mStateWire := MemState.sReadIntoAES
-      when (counter_reg === mem_target_reg) {
+      when(counter_reg === mem_target_reg) {
         // Completed Memory Read
         mStateWire := MemState.sIdle
-      } .otherwise {
-        when (dequeue.io.dataOut.fire()) { // When we dequeue
+      }.otherwise {
+        when(dequeue.io.dataOut.fire()) { // When we dequeue
           io.aesCoreIO.cs := true.B
           io.aesCoreIO.we := true.B
           io.aesCoreIO.write_data := dequeue.io.dataOut.bits
           counter_reg := counter_reg + 1.U
         }
       }
-      when (cState === CtrlState.sKeySetup) {
+      when(cState === CtrlState.sKeySetup) {
         io.aesCoreIO.address := AESAddr.KEY + counter_reg
-      } .elsewhen (cState === CtrlState.sDataSetup) {
+      }.elsewhen(cState === CtrlState.sDataSetup) {
         io.aesCoreIO.address := AESAddr.TEXT + counter_reg
       }
     }
-    is (MemState.sWriteReq) {
+    is(MemState.sWriteReq) {
       mStateWire := MemState.sWriteReq
-      when (counter_reg === 4.U(4.W)) {
+      when(counter_reg === 4.U(4.W)) {
         // Completed Memory Write
-        when (!io.dmem.busy && enqueue.io.done) {
+        when(!io.dmem.busy && enqueue.io.done) {
           mStateWire := MemState.sIdle
-          when (blks_remain_reg === 0.U) {
+          when(blks_remain_reg === 0.U) {
             io.dcplrIO.interrupt := intrpt_en_reg
           }
         }
-      } .otherwise {
+      }.otherwise {
         // Send Write Request
         enqueue.io.dataIn.valid := true.B
-        when (enqueue.io.dataIn.ready === true.B) {
+        when(enqueue.io.dataIn.ready === true.B) {
           mStateWire := MemState.sWriteIntoMem
           counter_reg := counter_reg + 1.U
         }
       }
     }
-    is (MemState.sWriteIntoMem) {
+    is(MemState.sWriteIntoMem) {
       mStateWire := MemState.sWriteReq;
     }
   }

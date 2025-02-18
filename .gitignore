@@ -1,10 +1,44 @@
-.bloop
-.bsp
-.metals
-.vscode
-target
-project
-test_run_dir
+# Created by https://www.toptal.com/developers/gitignore/api/visualstudiocode,metals,mill,scala
+# Edit at https://www.toptal.com/developers/gitignore?templates=visualstudiocode,metals,mill,scala
+
+### Metals ###
+.metals/
+.bloop/
+project/**/metals.sbt
+
+### Mill ###
+out
+
+### Scala ###
+*.class
+*.log
+
+# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
+hs_err_pid*
+
+### VisualStudioCode ###
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+!.vscode/*.code-snippets
+
+# Local History for Visual Studio Code
+.history/
+
+# Built Visual Studio Code Extensions
+*.vsix
+
+### VisualStudioCode Patch ###
+# Ignore all local history of files
+.history
+.ionide
+
+# End of https://www.toptal.com/developers/gitignore/api/visualstudiocode,metals,mill,scala
+
+# Build folder
+build
 
 # ignore swp file
 .*.swp

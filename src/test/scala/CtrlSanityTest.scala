@@ -8,7 +8,6 @@ import org.scalatest.flatspec.AnyFlatSpec
 import freechips.rocketchip.config.Parameters
 import freechips.rocketchip.rocket.{HellaCacheReq, HellaCacheResp}
 import verif._
-import ee290cdma.{EE290CDMAWriterReq, EE290CDMAReaderReq}
 import chiseltest.experimental.TestOptionBuilder._
 import chiseltest.internal.WriteVcdAnnotation
 
@@ -401,8 +400,8 @@ class CtrlSanityTest extends AnyFlatSpec with ChiselScalatestTester {
 //      val outAESCtrlMonitor = new ValidMonitor(c.clock, c.io.testAESCtrl)
 //      // DMA signal driver/monitor
 //      val inDriver = new DecoupledDriverMaster(c.clock, c.io.dmem.readRespQueue)
-//      val outReadReqDriver = new DecoupledDriverSlave[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq, 0)
-//      val outReadReqMonitor = new DecoupledMonitor[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq)
+//      val outReadReqDriver = new DecoupledDriverSlave[DMAReaderReq](c.clock, c.io.dmem.readReq, 0)
+//      val outReadReqMonitor = new DecoupledMonitor[DMAReaderReq](c.clock, c.io.dmem.readReq)
 //      val r = new Random
 //      c.io.dcplrIO.key_valid.poke(false.B)
 //      c.io.dcplrIO.addr_valid.poke(false.B)
@@ -489,8 +488,8 @@ class CtrlSanityTest extends AnyFlatSpec with ChiselScalatestTester {
 //      val outAESCtrlMonitor = new ValidMonitor(c.clock, c.io.testAESCtrl)
 //      // DMA signal driver/monitor
 //      val inDriver = new DecoupledDriverMaster(c.clock, c.io.dmem.readRespQueue)
-//      val outReadReqDriver = new DecoupledDriverSlave[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq, 0)
-//      val outReadReqMonitor = new DecoupledMonitor[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq)
+//      val outReadReqDriver = new DecoupledDriverSlave[DMAReaderReq](c.clock, c.io.dmem.readReq, 0)
+//      val outReadReqMonitor = new DecoupledMonitor[DMAReaderReq](c.clock, c.io.dmem.readReq)
 //      val r = new Random
 //      c.io.setCValid.poke(true.B)
 //      c.io.setCState.poke(CtrlState.sWaitData.litValue().U)
@@ -554,8 +553,8 @@ class CtrlSanityTest extends AnyFlatSpec with ChiselScalatestTester {
 //      val outAESCtrlMonitor = new ValidMonitor(c.clock, c.io.testAESCtrl)
 //      // DMA signal driver/monitor
 //      val inDriver = new DecoupledDriverMaster(c.clock, c.io.dmem.readRespQueue)
-//      val outReadReqDriver = new DecoupledDriverSlave[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq, 0)
-//      val outReadReqMonitor = new DecoupledMonitor[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq)
+//      val outReadReqDriver = new DecoupledDriverSlave[DMAReaderReq](c.clock, c.io.dmem.readReq, 0)
+//      val outReadReqMonitor = new DecoupledMonitor[DMAReaderReq](c.clock, c.io.dmem.readReq)
 //      val r = new Random
 //      c.io.setCValid.poke(true.B)
 //      c.io.setCState.poke(CtrlState.sWaitData.litValue().U)
@@ -673,10 +672,10 @@ class CtrlSanityTest extends AnyFlatSpec with ChiselScalatestTester {
 //      val outAESCtrlMonitor = new ValidMonitor(c.clock, c.io.testAESCtrl)
 //      // Driver for dma interface
 //      val inDriver = new DecoupledDriverMaster(c.clock, c.io.dmem.readRespQueue)
-//      val outWriteReqDriver = new DecoupledDriverSlave[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
-//      val outWriteReqMonitor = new DecoupledMonitor[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq)
-//      val outReadReqDriver = new DecoupledDriverSlave[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq, 0)
-//      val outReadReqMonitor = new DecoupledMonitor[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq)
+//      val outWriteReqDriver = new DecoupledDriverSlave[DMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
+//      val outWriteReqMonitor = new DecoupledMonitor[DMAWriterReq](c.clock, c.io.dmem.writeReq)
+//      val outReadReqDriver = new DecoupledDriverSlave[DMAReaderReq](c.clock, c.io.dmem.readReq, 0)
+//      val outReadReqMonitor = new DecoupledMonitor[DMAReaderReq](c.clock, c.io.dmem.readReq)
 //      val r = new Random
 //
 //      // Initializing decoupler <> controller interface
@@ -918,10 +917,10 @@ class CtrlSanityTest extends AnyFlatSpec with ChiselScalatestTester {
 //      val outAESReadDataMonitor = new ValidMonitor(c.clock, c.io.testAESReadData)
 //      val outAESCtrlMonitor = new ValidMonitor(c.clock, c.io.testAESCtrl)
 //      // driver for dma writereq
-//      val outWriteReqDriver = new DecoupledDriverSlave[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
-//      val outWriteReqMonitor = new DecoupledMonitor[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq)
-//      val outReadReqDriver = new DecoupledDriverSlave[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq, 0)
-//      val outReadReqMonitor = new DecoupledMonitor[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq)
+//      val outWriteReqDriver = new DecoupledDriverSlave[DMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
+//      val outWriteReqMonitor = new DecoupledMonitor[DMAWriterReq](c.clock, c.io.dmem.writeReq)
+//      val outReadReqDriver = new DecoupledDriverSlave[DMAReaderReq](c.clock, c.io.dmem.readReq, 0)
+//      val outReadReqMonitor = new DecoupledMonitor[DMAReaderReq](c.clock, c.io.dmem.readReq)
 //      val r = new Random
 //
 //      // Initializing decoupler <> controller interface
@@ -1155,10 +1154,10 @@ class CtrlSanityTest extends AnyFlatSpec with ChiselScalatestTester {
 //      val outAESReadDataMonitor = new ValidMonitor(c.clock, c.io.testAESReadData)
 //      val outAESCtrlMonitor = new ValidMonitor(c.clock, c.io.testAESCtrl)
 //      // driver for dma writereq
-//      val outWriteReqDriver = new DecoupledDriverSlave[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
-//      val outWriteReqMonitor = new DecoupledMonitor[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq)
-//      val outReadReqDriver = new DecoupledDriverSlave[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq, 0)
-//      val outReadReqMonitor = new DecoupledMonitor[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq)
+//      val outWriteReqDriver = new DecoupledDriverSlave[DMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
+//      val outWriteReqMonitor = new DecoupledMonitor[DMAWriterReq](c.clock, c.io.dmem.writeReq)
+//      val outReadReqDriver = new DecoupledDriverSlave[DMAReaderReq](c.clock, c.io.dmem.readReq, 0)
+//      val outReadReqMonitor = new DecoupledMonitor[DMAReaderReq](c.clock, c.io.dmem.readReq)
 //      val r = new Random
 //
 //      // Initializing decoupler <> controller interface
@@ -1411,10 +1410,10 @@ class CtrlSanityTest extends AnyFlatSpec with ChiselScalatestTester {
 //      val outAESCtrlMonitor = new ValidMonitor(c.clock, c.io.testAESCtrl)
 //      // Driver for dma interface
 //      val inDriver = new DecoupledDriverMaster(c.clock, c.io.dmem.readRespQueue)
-//      val outWriteReqDriver = new DecoupledDriverSlave[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
-//      val outWriteReqMonitor = new DecoupledMonitor[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq)
-//      val outReadReqDriver = new DecoupledDriverSlave[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq, 0)
-//      val outReadReqMonitor = new DecoupledMonitor[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq)
+//      val outWriteReqDriver = new DecoupledDriverSlave[DMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
+//      val outWriteReqMonitor = new DecoupledMonitor[DMAWriterReq](c.clock, c.io.dmem.writeReq)
+//      val outReadReqDriver = new DecoupledDriverSlave[DMAReaderReq](c.clock, c.io.dmem.readReq, 0)
+//      val outReadReqMonitor = new DecoupledMonitor[DMAReaderReq](c.clock, c.io.dmem.readReq)
 //      val r = new Random
 //
 //      // Initializing decoupler <> controller interface
@@ -1590,10 +1589,10 @@ class CtrlSanityTest extends AnyFlatSpec with ChiselScalatestTester {
 //      val outAESCtrlMonitor = new ValidMonitor(c.clock, c.io.testAESCtrl)
 //      // Driver for dma interface
 //      val inDriver = new DecoupledDriverMaster(c.clock, c.io.dmem.readRespQueue)
-//      val outWriteReqDriver = new DecoupledDriverSlave[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
-//      val outWriteReqMonitor = new DecoupledMonitor[EE290CDMAWriterReq](c.clock, c.io.dmem.writeReq)
-//      val outReadReqDriver = new DecoupledDriverSlave[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq, 0)
-//      val outReadReqMonitor = new DecoupledMonitor[EE290CDMAReaderReq](c.clock, c.io.dmem.readReq)
+//      val outWriteReqDriver = new DecoupledDriverSlave[DMAWriterReq](c.clock, c.io.dmem.writeReq, 0)
+//      val outWriteReqMonitor = new DecoupledMonitor[DMAWriterReq](c.clock, c.io.dmem.writeReq)
+//      val outReadReqDriver = new DecoupledDriverSlave[DMAReaderReq](c.clock, c.io.dmem.readReq, 0)
+//      val outReadReqMonitor = new DecoupledMonitor[DMAReaderReq](c.clock, c.io.dmem.readReq)
 //      val r = new Random
 //
 //      // Initializing decoupler <> controller interface

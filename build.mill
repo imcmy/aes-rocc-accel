@@ -1,0 +1,39 @@
+package build
+
+import mill._, scalalib._
+import coursier.maven.MavenRepository
+
+object ivys {
+  val scalaVersion = "2.13.15"
+  val chisel = ivy"org.chipsalliance::chisel:6.6.0"
+  val chiselPlugin = ivy"org.chipsalliance:::chisel-plugin:6.6.0"
+  val scalatest = ivy"org.scalatest::scalatest:3.2.19"
+  val chiseltest = ivy"edu.berkeley.cs::chiseltest:6.0.0"
+  val pwd = os.Path(sys.env("MILL_WORKSPACE_ROOT"))
+  val sonatypeSnapshots = Seq(
+    MavenRepository("https://s01.oss.sonatype.org/content/repositories/snapshots")
+  )
+}
+
+trait CommonModule extends ScalaModule {
+  override def scalaVersion = ivys.scalaVersion
+  override def scalacOptions = Seq(
+    "-language:reflectiveCalls",
+    "-deprecation",
+    "-feature",
+    "-Xcheckinit",
+    "-Ymacro-annotations"
+  )
+  override def ivyDeps = Agg(ivys.chisel)
+  override def scalacPluginIvyDeps = Agg(ivys.chiselPlugin)
+  override def repositoriesTask = Task.Anon {
+    super.repositoriesTask() ++ ivys.sonatypeSnapshots
+  }
+}
+
+object aes extends SbtModule with CommonModule {
+  override def millSourcePath = ivys.pwd
+  object test extends SbtTests with TestModule.ScalaTest {
+    override def ivyDeps = super.ivyDeps() ++ Agg(ivys.scalatest, ivys.chiseltest)
+  }
+}

@@ -2,14 +2,13 @@ package aes
 
 import chisel3._
 import chisel3.util._
-import ee290cdma.EE290CDMAWriterReq
 
 // Takes 32bit inputs (from AES core) and writes to DMA
 class DMAInputBuffer (addrBits: Int = 32, beatBytes: Int) extends Module {
   val io = IO(new Bundle {
     val baseAddr = Flipped(Decoupled(UInt(addrBits.W)))
     val dataIn  = Flipped(Decoupled(UInt(32.W)))
-    val dmaOutput = Decoupled(new EE290CDMAWriterReq(addrBits, beatBytes))
+    val dmaOutput = Decoupled(new DMAWriterReq(addrBits, beatBytes))
     val done = Output(Bool())
   })
 
